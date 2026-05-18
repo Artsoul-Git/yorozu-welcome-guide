@@ -1,6 +1,12 @@
 (function () {
   var factories   = window.slideFactories || [];
   var totalSlides = factories.length;
+  var SLUG        = window.SLIDE_SLUG || 'default';
+  var NOTES_KEY   = SLUG + '_presenterNotes';
+  var ZOOM_KEY    = SLUG + '_presenterZoom';
+  var HSPLIT_KEY  = SLUG + '_presenterHSplit';
+  var VSPLIT_KEY  = SLUG + '_presenterVSplit';
+  var FONT_KEY    = SLUG + '_presenterNotesFontSize';
   var current     = 0;
 
   var layout      = document.getElementById('p-layout');
@@ -60,7 +66,7 @@
      ============================================= */
   var notesOverrides = {};
   try {
-    var stored = localStorage.getItem('presenterNotes');
+    var stored = localStorage.getItem(NOTES_KEY);
     if (stored) notesOverrides = JSON.parse(stored);
   } catch (e) {}
 
@@ -69,7 +75,7 @@
 
   function saveNotes(index, text) {
     notesOverrides[index] = text;
-    try { localStorage.setItem('presenterNotes', JSON.stringify(notesOverrides)); } catch (e) {}
+    try { localStorage.setItem(NOTES_KEY, JSON.stringify(notesOverrides)); } catch (e) {}
     if (saveIndicator) {
       saveIndicator.textContent = '保存済';
       saveIndicator.classList.add('show');
@@ -107,7 +113,7 @@
     stgCurrent.classList.toggle('zoomed', presenterZoom > 1.0);
     if (zoomDisplay) zoomDisplay.textContent = Math.round(presenterZoom * 100) + '%';
     fitSlide(stgCurrent, presenterZoom);
-    try { localStorage.setItem('presenterZoom', presenterZoom); } catch (e) {}
+    try { localStorage.setItem(ZOOM_KEY, presenterZoom); } catch (e) {}
   }
 
   if (zoomInBtn)    zoomInBtn.addEventListener('click',    function () { applyPresenterZoom(presenterZoom + ZOOM_STEP); });
@@ -240,14 +246,14 @@
     notesFontSize = Math.max(9, Math.min(28, size));
     if (notesText)   notesText.style.fontSize = notesFontSize + 'px';
     if (fontsizeVal) fontsizeVal.textContent   = notesFontSize;
-    try { localStorage.setItem('presenterNotesFontSize', notesFontSize); } catch (e) {}
+    try { localStorage.setItem(FONT_KEY, notesFontSize); } catch (e) {}
   }
 
   if (notesSmallerBtn) notesSmallerBtn.addEventListener('click', function () { applyNotesFontSize(notesFontSize - 1); });
   if (notesLargerBtn)  notesLargerBtn.addEventListener('click',  function () { applyNotesFontSize(notesFontSize + 1); });
 
   try {
-    var savedFont = parseInt(localStorage.getItem('presenterNotesFontSize'), 10);
+    var savedFont = parseInt(localStorage.getItem(FONT_KEY), 10);
     if (!isNaN(savedFont)) applyNotesFontSize(savedFont);
   } catch (e) {}
 
@@ -271,7 +277,7 @@
     pct = Math.max(H_MIN, Math.min(H_MAX, pct));
     currentCol.style.flex = '0 0 ' + pct.toFixed(1) + '%';
     requestAnimationFrame(function () { fitSlide(stgCurrent, presenterZoom); });
-    try { localStorage.setItem('presenterHSplit', pct.toFixed(1)); } catch (e) {}
+    try { localStorage.setItem(HSPLIT_KEY, pct.toFixed(1)); } catch (e) {}
   }
 
   if (splitter) {
@@ -296,7 +302,7 @@
   }
 
   try {
-    var hs = parseFloat(localStorage.getItem('presenterHSplit'));
+    var hs = parseFloat(localStorage.getItem(HSPLIT_KEY));
     if (!isNaN(hs)) applyHSplit(hs);
   } catch (e) {}
 
@@ -315,14 +321,14 @@
     px = Math.max(V_MIN_PX, Math.min(maxPx > V_MIN_PX ? maxPx : 9999, px));
     stgNext.style.height = px + 'px';
     requestAnimationFrame(function () { fitSlide(stgNext); });
-    try { localStorage.setItem('presenterVSplit', Math.round(px)); } catch (e) {}
+    try { localStorage.setItem(VSPLIT_KEY, Math.round(px)); } catch (e) {}
   }
 
   function initVSplit() {
     var w = sideCol ? sideCol.clientWidth : 400;
     var defaultH = Math.round(w * 9 / 16);
     try {
-      var saved = parseInt(localStorage.getItem('presenterVSplit'), 10);
+      var saved = parseInt(localStorage.getItem(VSPLIT_KEY), 10);
       applyVSplit(!isNaN(saved) ? saved : defaultH);
     } catch (e) { applyVSplit(defaultH); }
   }
@@ -457,7 +463,7 @@
 
       function captureNext() {
         if (idx >= totalSlides) {
-          return pptx.writeFile({ fileName: '契約書AIチェックセミナー.pptx' }).then(hideExportOverlay);
+          return pptx.writeFile({ fileName: (document.title || SLUG) + '.pptx' }).then(hideExportOverlay);
         }
 
         var wrap = document.createElement('div');
@@ -607,7 +613,7 @@
 
   /* 前回のズームを復元 */
   try {
-    var savedZoom = parseFloat(localStorage.getItem('presenterZoom'));
+    var savedZoom = parseFloat(localStorage.getItem(ZOOM_KEY));
     if (!isNaN(savedZoom) && savedZoom !== 1.0) {
       presenterZoom = savedZoom;
       if (zoomDisplay) zoomDisplay.textContent = Math.round(presenterZoom * 100) + '%';

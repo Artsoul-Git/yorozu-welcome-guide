@@ -6,6 +6,8 @@
 
   /* ===================== SLIDES ===================== */
 
+  window.SLIDE_SLUG = 'yorozu-welcome-guide';
+
   /* --- COVER --- */
   function slide01() {
     return '<section class="slide slide-cover" data-section="cover" data-title="表紙" data-notes="本日はよろず支援拠点をご利用いただきありがとうございます。（少し間）相談に入る前に、このご案内を5〜10分ほどで読み上げさせていただきます。よくあるご質問と、ご利用規約についてお伝えします。">' +

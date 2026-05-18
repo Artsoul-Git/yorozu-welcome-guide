@@ -1,6 +1,9 @@
 (function () {
   var factories = window.slideFactories || [];
   var agenda    = window.agendaItems   || [];
+  var SLUG      = window.SLIDE_SLUG || 'default';
+  var EDITS_KEY = SLUG + '_slideEdits';
+  var ZOOM_KEY  = SLUG + '_slideZoom';
   var totalSlides = factories.length;
   var rendered  = new Set();
   var current   = 0;
@@ -36,7 +39,7 @@
 
   /* ---------- Slide edits (localStorage) ---------- */
   var slideEdits = {};
-  try { slideEdits = JSON.parse(localStorage.getItem('slideEdits') || '{}'); } catch (e) {}
+  try { slideEdits = JSON.parse(localStorage.getItem(EDITS_KEY) || '{}'); } catch (e) {}
   var editMode        = false;
   var editAutoSaveTimer = null;
   var etSavedTimer    = null;
@@ -341,7 +344,7 @@
 
       function captureNext() {
         if (idx >= totalSlides) {
-          return pptx.writeFile({ fileName: '契約書AIチェックセミナー.pptx' }).then(hideOverlay);
+          return pptx.writeFile({ fileName: (document.title || SLUG) + '.pptx' }).then(hideOverlay);
         }
 
         /* Build a fixed-size off-screen container */
@@ -513,7 +516,7 @@
     zoomLevel = Math.round(Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, z)) * 10) / 10;
     document.documentElement.style.setProperty('--tz', zoomLevel);
     if (zoomDisplay) zoomDisplay.textContent = Math.round(zoomLevel * 100) + '%';
-    try { localStorage.setItem('slideZoom', zoomLevel); } catch (e) {}
+    try { localStorage.setItem(ZOOM_KEY, zoomLevel); } catch (e) {}
   }
 
   if (zoomInBtn)    zoomInBtn.addEventListener('click',    function () { applyZoom(zoomLevel + ZOOM_STEP); });
@@ -542,7 +545,7 @@
 
   /* 前回のズームレベルを復元 */
   try {
-    var saved = parseFloat(localStorage.getItem('slideZoom'));
+    var saved = parseFloat(localStorage.getItem(ZOOM_KEY));
     if (!isNaN(saved) && saved !== 1.0) applyZoom(saved);
   } catch (e) {}
 
@@ -568,7 +571,7 @@
 
   function persistCurrentEdit(index, slide) {
     slideEdits[index] = slide.innerHTML;
-    try { localStorage.setItem('slideEdits', JSON.stringify(slideEdits)); } catch (e) {}
+    try { localStorage.setItem(EDITS_KEY, JSON.stringify(slideEdits)); } catch (e) {}
     showEtSaved('保存済');
   }
 
@@ -645,7 +648,7 @@
     etResetSlide.addEventListener('click', function () {
       if (!confirm('このスライドの編集を元に戻しますか？')) return;
       delete slideEdits[current];
-      try { localStorage.setItem('slideEdits', JSON.stringify(slideEdits)); } catch (e) {}
+      try { localStorage.setItem(EDITS_KEY, JSON.stringify(slideEdits)); } catch (e) {}
       var slide = getSlide(current);
       if (!slide) return;
       var origFrag = document.createRange().createContextualFragment(factories[current]());
