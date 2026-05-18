@@ -36,6 +36,8 @@
   var etColor      = document.getElementById('et-color');
   var etResetSlide = document.getElementById('et-reset-slide');
   var etSaved      = document.getElementById('et-saved');
+  var etUndo       = document.getElementById('et-undo');
+  var etDiscard    = document.getElementById('et-discard');
 
   /* ---------- Slide edits (localStorage) ---------- */
   var slideEdits = {};
@@ -44,6 +46,9 @@
   var editAutoSaveTimer = null;
   var etSavedTimer    = null;
   var etColorSavedRange = null;
+  var undoStack = {};            /* {slideIndex: [html, ...]} per-slide undo history */
+  var editModeSnapshots = {};    /* slide innerHTML at edit-mode entry (for discard) */
+  var editModeSnapshotEdits = {};/* slideEdits clone at edit-mode entry */
 
   /* ---------- Render ---------- */
   function ensureRendered(index) {
@@ -78,6 +83,11 @@
       }
     }
     ensureRendered(index);
+    /* Snapshot newly rendered slide before editing */
+    if (editMode && !(index in editModeSnapshots)) {
+      var newSl = getSlide(index);
+      if (newSl) editModeSnapshots[index] = newSl.innerHTML;
+    }
     ensureRendered(index + 1);
     var prev = getSlide(current);
     if (prev) prev.classList.remove('active');
@@ -211,6 +221,10 @@
         e.preventDefault();
         var slide = getSlide(current);
         if (slide) persistCurrentEdit(current, slide);
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+        e.preventDefault();
+        if (etUndo) etUndo.click();
       }
       if (e.key === 'Escape') exitEditMode();
       return; /* Arrow keys / Space navigate text, not slides */
@@ -573,7 +587,13 @@
   /* ---------- Edit Mode ---------- */
 
   function persistCurrentEdit(index, slide) {
-    slideEdits[index] = slide.innerHTML;
+    var newHtml = slide.innerHTML;
+    if (newHtml !== slideEdits[index]) {
+      if (!undoStack[index]) undoStack[index] = [];
+      undoStack[index].push(slideEdits[index] !== undefined ? slideEdits[index] : null);
+      if (undoStack[index].length > 20) undoStack[index].shift();
+    }
+    slideEdits[index] = newHtml;
     try { localStorage.setItem(EDITS_KEY, JSON.stringify(slideEdits)); } catch (e) {}
     showEtSaved('保存済');
   }
@@ -587,6 +607,14 @@
   }
 
   function enterEditMode() {
+    /* Snapshot current state so discard can restore */
+    editModeSnapshots = {};
+    editModeSnapshotEdits = JSON.parse(JSON.stringify(slideEdits));
+    rendered.forEach(function (i) {
+      var s = getSlide(i);
+      if (s) editModeSnapshots[i] = s.innerHTML;
+    });
+    undoStack = {};
     editMode = true;
     document.body.classList.add('edit-mode');
     if (editModeBtn) { editModeBtn.classList.add('active'); editModeBtn.textContent = '保存'; }
@@ -598,6 +626,27 @@
       slide.contentEditable = 'true';
       slide.focus();
     }
+  }
+
+  function discardEdit() {
+    dpDeselectEl();
+    hideDesignPanel();
+    var slide = getSlide(current);
+    if (slide) { slide.removeAttribute('contentEditable'); slide.blur(); }
+    /* Restore all snapshotted slides */
+    Object.keys(editModeSnapshots).forEach(function (i) {
+      var idx = parseInt(i, 10);
+      var s = getSlide(idx);
+      if (s) { s.innerHTML = editModeSnapshots[idx]; dpRestoreElements(s); }
+    });
+    slideEdits = JSON.parse(JSON.stringify(editModeSnapshotEdits));
+    try { localStorage.setItem(EDITS_KEY, JSON.stringify(slideEdits)); } catch (e) {}
+    undoStack = {};
+    editMode = false;
+    document.body.classList.remove('edit-mode');
+    if (editModeBtn) { editModeBtn.classList.remove('active'); editModeBtn.textContent = '✏️ 編集'; }
+    if (editToolbar) editToolbar.classList.remove('show');
+    showEtSaved('編集を破棄しました');
   }
 
   function exitEditMode() {
@@ -729,6 +778,40 @@
     return '#' + [m[1], m[2], m[3]].map(function (v) {
       return ('0' + parseInt(v).toString(16)).slice(-2);
     }).join('');
+  }
+
+  /* ── Bidirectional sync: color picker ↔ hex text input ── */
+  function dpWireHexInput(colorInput, hexInput) {
+    if (!colorInput || !hexInput) return;
+    hexInput.value = colorInput.value.toUpperCase();
+    colorInput.addEventListener('input', function () {
+      hexInput.value = this.value.toUpperCase();
+    });
+    hexInput.addEventListener('input', function () {
+      var v = this.value.trim();
+      if (!v.startsWith('#')) v = '#' + v;
+      if (/^#[0-9A-Fa-f]{6}$/.test(v)) {
+        colorInput.value = v.toLowerCase();
+        colorInput.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    });
+  }
+
+  /* ── Convert a native (Kai-placed) slide element to draggable dp-el ── */
+  function dpConvertNativeEl(el, slide) {
+    if (el.classList.contains('dp-el')) return;
+    var sr = slide.getBoundingClientRect();
+    var er = el.getBoundingClientRect();
+    el.dataset.dpNative = '1';
+    el.classList.add('dp-el');
+    if (el.textContent.trim()) el.classList.add('dp-el-text');
+    el.style.position = 'absolute';
+    el.style.left  = (er.left - sr.left) + 'px';
+    el.style.top   = (er.top  - sr.top)  + 'px';
+    el.style.width = er.width + 'px';
+    el.setAttribute('contenteditable', 'false');
+    delete el.dataset.dpDrag;
+    dpMakeDraggable(el);
   }
 
   /* ── Insert shape ── */
@@ -1012,11 +1095,19 @@
     /* Text props */
     if (isText) {
       var fsi = document.getElementById('dp-fs');
-      if (fsi) fsi.value = parseInt(dpSelEl.style.fontSize) || 24;
+      if (fsi) {
+        var fsv = parseInt(dpSelEl.style.fontSize);
+        if (isNaN(fsv)) fsv = Math.round(parseFloat(window.getComputedStyle(dpSelEl).fontSize)) || 24;
+        fsi.value = fsv;
+      }
       var tci = document.getElementById('dp-txt-color');
       if (tci) {
-        var hex = dpColorVal(dpSelEl.style.color);
-        if (hex) tci.value = hex;
+        var hex = dpColorVal(dpSelEl.style.color) || dpColorVal(window.getComputedStyle(dpSelEl).color);
+        if (hex) {
+          tci.value = hex;
+          var tch = document.getElementById('dp-txt-color-hex');
+          if (tch) tch.value = hex.toUpperCase();
+        }
       }
     }
 
@@ -1280,22 +1371,74 @@
         dpInsertText(parseInt(this.dataset.fs), this.dataset.fw);
       });
     });
+
+    /* ── Hex color input sync ── */
+    dpWireHexInput(document.getElementById('dp-txt-color'), document.getElementById('dp-txt-color-hex'));
+    dpWireHexInput(document.getElementById('dp-fill'),      document.getElementById('dp-fill-hex'));
+    dpWireHexInput(document.getElementById('dp-stroke'),    document.getElementById('dp-stroke-hex'));
+    dpWireHexInput(document.getElementById('dp-bg-color'),  document.getElementById('dp-bg-color-hex'));
+    dpWireHexInput(etColor, document.getElementById('et-color-hex'));
+
+    /* ── Undo ── */
+    if (etUndo) {
+      etUndo.addEventListener('click', function () {
+        var stack = undoStack[current];
+        if (!stack || !stack.length) { showEtSaved('これ以上戻れません'); return; }
+        var prevHtml = stack.pop();
+        var slide = getSlide(current);
+        if (!slide) return;
+        dpDeselectEl();
+        if (prevHtml === null || prevHtml === undefined) {
+          var origFrag = document.createRange().createContextualFragment(factories[current]());
+          var origEl   = origFrag.querySelector('.slide');
+          if (origEl) slide.innerHTML = origEl.innerHTML;
+          delete slideEdits[current];
+        } else {
+          slide.innerHTML = prevHtml;
+          slideEdits[current] = prevHtml;
+        }
+        dpRestoreElements(slide);
+        try { localStorage.setItem(EDITS_KEY, JSON.stringify(slideEdits)); } catch (e) {}
+        showEtSaved('元に戻しました');
+      });
+    }
+
+    /* ── Discard ── */
+    if (etDiscard) {
+      etDiscard.addEventListener('click', discardEdit);
+    }
   }
 
-  /* ── Click on dp-el → select; click elsewhere → deselect ── */
+  /* ── Click: dp-el → makeDraggable; native slide el → convert+select; elsewhere → deselect ── */
   stage.addEventListener('mousedown', function (e) {
     if (!editMode) return;
-    var el = e.target;
-    while (el && el !== stage) {
-      if (el.classList && el.classList.contains('dp-el')) {
-        /* handled by makeDraggable */
-        return;
-      }
-      if (el.classList && el.classList.contains('dp-sel-handle')) return;
-      el = el.parentElement;
+    /* Check if target is inside a dp-el or handle */
+    var check = e.target;
+    while (check && check !== stage) {
+      if (check.classList && check.classList.contains('dp-el')) return; /* makeDraggable handles */
+      if (check.classList && check.classList.contains('dp-sel-handle')) return;
+      check = check.parentElement;
     }
-    /* Clicked on non-dp-el area inside stage */
-    dpDeselectEl();
+    /* Check if target is inside the current slide */
+    var slide = getSlide(current);
+    if (!slide || !slide.contains(e.target) || e.target === slide) { dpDeselectEl(); return; }
+    /* Find the topmost child of slide containing the target */
+    var nativeEl = e.target;
+    while (nativeEl && nativeEl.parentElement !== slide) {
+      nativeEl = nativeEl.parentElement;
+    }
+    if (!nativeEl || nativeEl.classList.contains('dp-sel-box')) { dpDeselectEl(); return; }
+    /* Convert native element to dp-el, then re-dispatch so makeDraggable handles drag */
+    if (!nativeEl.classList.contains('dp-el')) {
+      e.preventDefault();
+      e.stopPropagation();
+      dpConvertNativeEl(nativeEl, slide);
+      nativeEl.dispatchEvent(new MouseEvent('mousedown', {
+        bubbles: true, cancelable: true,
+        clientX: e.clientX, clientY: e.clientY,
+        button: e.button, buttons: e.buttons
+      }));
+    }
   }, true);
 
   /* ── Double-click text box → inline edit ── */

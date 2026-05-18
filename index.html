@@ -40,8 +40,11 @@
         <span class="et-color-label">A</span>
         <input type="color" id="et-color" value="#ffffff">
       </label>
+      <input type="text" class="et-hex-input" id="et-color-hex" placeholder="#FFFFFF" maxlength="7">
       <div class="et-sep"></div>
-      <button class="et-btn et-btn-danger" id="et-reset-slide">リセット</button>
+      <button class="et-btn" id="et-undo" title="元に戻す (Ctrl+Z)">↩</button>
+      <button class="et-btn et-btn-danger" id="et-reset-slide" title="このスライドをリセット">リセット</button>
+      <button class="et-btn et-btn-discard" id="et-discard" title="保存せず閉じる">閉じる</button>
       <span class="et-saved" id="et-saved"></span>
     </div>
     <div class="zoom-group">
@@ -192,7 +195,7 @@
         <div class="dp-panel-sub" style="margin-top:14px">カスタムカラー</div>
         <label class="dp-color-row" style="margin-bottom:10px">
           <input type="color" id="dp-bg-color" value="#ffffff">
-          <span>背景色を選択</span>
+          <input type="text" class="dp-hex-input" id="dp-bg-color-hex" placeholder="#FFFFFF" maxlength="7">
         </label>
         <button class="dp-btn-sec" id="dp-bg-reset">背景をリセット</button>
       </div>
@@ -238,7 +241,7 @@
             <div class="dp-prop-label">文字色</div>
             <label class="dp-color-row">
               <input type="color" id="dp-txt-color" value="#333333">
-              <span>色を選択</span>
+              <input type="text" class="dp-hex-input" id="dp-txt-color-hex" placeholder="#333333" maxlength="7">
             </label>
           </div>
           <hr class="dp-sep">
@@ -250,7 +253,7 @@
             <div class="dp-prop-label">塗りつぶし</div>
             <label class="dp-color-row">
               <input type="color" id="dp-fill" value="#6F911D">
-              <span>色を選択</span>
+              <input type="text" class="dp-hex-input" id="dp-fill-hex" placeholder="#6F911D" maxlength="7">
             </label>
           </div>
           <div class="dp-prop-group">
@@ -258,7 +261,7 @@
             <div class="dp-prop-row">
               <label class="dp-color-row" style="flex:1;padding:5px 8px">
                 <input type="color" id="dp-stroke" value="#333333">
-                <span style="font-size:11px">色</span>
+                <input type="text" class="dp-hex-input" id="dp-stroke-hex" placeholder="#333333" maxlength="7" style="max-width:60px">
               </label>
               <input type="number" class="dp-num" id="dp-sw" min="0" max="30" value="0" style="width:46px">
               <span class="dp-unit">px</span>

@@ -502,3 +502,57 @@ body.dp-open { }
    EDIT MODE — slide cursor reset
    ============================================= */
 body.edit-mode .slide.active { cursor: default; }
+
+/* =============================================
+   SLIDE RESIZE WHEN DESIGN PANEL IS OPEN
+   ============================================= */
+.slide {
+  transition: opacity .15s ease,
+              width .2s cubic-bezier(.4,0,.2,1),
+              max-height .2s cubic-bezier(.4,0,.2,1);
+}
+
+body.dp-open .slide {
+  width: calc(100vw - 324px);
+  max-height: calc((100vw - 324px) * 9 / 16);
+}
+
+/* =============================================
+   HEX COLOR TEXT INPUT
+   ============================================= */
+.dp-hex-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: rgba(255,255,255,.75);
+  font-size: 11.5px;
+  font-family: monospace;
+  min-width: 0;
+  outline: none;
+  padding: 2px 4px;
+}
+.dp-hex-input::placeholder { color: rgba(255,255,255,.28); }
+.dp-hex-input:focus { color: #fff; }
+
+/* Hex input in top toolbar */
+.et-hex-input {
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 5px;
+  color: rgba(255,255,255,.85);
+  font-family: monospace;
+  font-size: 11.5px;
+  padding: 3px 6px;
+  width: 72px;
+  height: 28px;
+  outline: none;
+  vertical-align: middle;
+}
+.et-hex-input:focus { border-color: rgba(56,182,255,.6); color: #fff; }
+
+/* Discard button style */
+.et-btn-discard {
+  color: rgba(255,140,140,.85);
+  border-color: rgba(231,76,60,.25) !important;
+}
+.et-btn-discard:hover { background: rgba(231,76,60,.2) !important; color: #e74c3c !important; }
