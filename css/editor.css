@@ -90,10 +90,13 @@ body.edit-mode .design-panel {
   overflow-x: hidden;
 }
 
-/* ── Stage shift when panel open ── */
+/* ── Stage shift: 64px strip always in edit mode; 324px when panel open ── */
+body.edit-mode .slide-stage {
+  left: 64px;
+  transition: left .2s cubic-bezier(.4,0,.2,1);
+}
 body.dp-open .slide-stage {
   left: 324px;
-  transition: left .2s cubic-bezier(.4,0,.2,1);
 }
 
 /* ── Panel content ── */
@@ -512,6 +515,10 @@ body.edit-mode .slide.active { cursor: default; }
               max-height .2s cubic-bezier(.4,0,.2,1);
 }
 
+body.edit-mode .slide {
+  width: calc(100vw - 64px);
+  max-height: calc((100vw - 64px) * 9 / 16);
+}
 body.dp-open .slide {
   width: calc(100vw - 324px);
   max-height: calc((100vw - 324px) * 9 / 16);
