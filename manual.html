@@ -1,0 +1,359 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>運用マニュアル — よろず支援拠点 はじめてご利用の方へ スライドシステム</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #f7f6f3;
+      color: #1a1a1a;
+      font-family: 'Noto Sans JP', sans-serif;
+      font-size: 14px;
+      line-height: 1.8;
+      padding: 0 0 80px;
+    }
+    .cover {
+      background: #0d0d0d;
+      color: #fff;
+      padding: 56px 48px 48px;
+    }
+    .cover-tag {
+      font-size: 10px;
+      font-weight: 700;
+      color: #6F911D;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+    .cover h1 {
+      font-size: 26px;
+      font-weight: 700;
+      line-height: 1.4;
+      margin-bottom: 8px;
+    }
+    .cover-sub {
+      font-size: 13px;
+      color: rgba(255,255,255,.45);
+      margin-bottom: 32px;
+    }
+    .cover-warning {
+      background: rgba(255,100,0,.12);
+      border: 1px solid rgba(255,100,0,.4);
+      border-radius: 6px;
+      padding: 14px 18px;
+      font-size: 12px;
+      color: #ffaa55;
+      font-weight: 700;
+      line-height: 1.7;
+    }
+    .content {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 48px 32px 0;
+    }
+    h2 {
+      font-size: 18px;
+      font-weight: 700;
+      margin: 48px 0 16px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #6F911D;
+      color: #111;
+    }
+    h3 {
+      font-size: 13px;
+      font-weight: 700;
+      margin: 24px 0 8px;
+      color: #333;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+    p { margin-bottom: 12px; }
+    ul, ol { padding-left: 20px; margin-bottom: 12px; }
+    li { margin-bottom: 4px; }
+
+    /* Password box */
+    .pwd-box {
+      background: #fff;
+      border: 2px solid #6F911D;
+      border-radius: 10px;
+      padding: 24px 28px;
+      margin: 20px 0;
+    }
+    .pwd-box-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: #6F911D;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .pwd-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: #111;
+      letter-spacing: .12em;
+      font-family: monospace;
+      margin-bottom: 8px;
+    }
+    .pwd-note {
+      font-size: 11px;
+      color: #888;
+    }
+    .pwd-change-note {
+      background: #fffbe6;
+      border: 1px solid #e6c800;
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-size: 12px;
+      color: #7a5f00;
+      margin-top: 12px;
+    }
+
+    /* URL table */
+    .url-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 13px;
+    }
+    .url-table th {
+      background: #111;
+      color: #fff;
+      padding: 8px 14px;
+      text-align: left;
+      font-weight: 700;
+    }
+    .url-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid #e5e5e5;
+      vertical-align: top;
+    }
+    .url-table tr:nth-child(even) td { background: #fafafa; }
+    .tag {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 3px;
+      margin-right: 4px;
+    }
+    .tag-public  { background: #e8f4d4; color: #3a5a00; }
+    .tag-private { background: #fff0e0; color: #7a3a00; }
+    .tag-local   { background: #e0eaff; color: #003a7a; }
+
+    /* Steps */
+    .step-list { list-style: none; padding: 0; }
+    .step-list li {
+      display: flex;
+      gap: 14px;
+      margin-bottom: 14px;
+      align-items: flex-start;
+    }
+    .step-num {
+      flex-shrink: 0;
+      width: 26px;
+      height: 26px;
+      background: #6F911D;
+      color: #fff;
+      border-radius: 50%;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 2px;
+    }
+    .step-body { flex: 1; }
+    .step-title { font-weight: 700; margin-bottom: 2px; }
+    .step-desc  { font-size: 12px; color: #555; }
+
+    /* Security note */
+    .security-box {
+      background: #f0f4e8;
+      border: 1px solid #c8dc8c;
+      border-radius: 8px;
+      padding: 18px 22px;
+      margin: 16px 0;
+      font-size: 13px;
+    }
+    .security-box h3 { margin-top: 0; color: #3a5a00; }
+
+    code {
+      background: #eee;
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-family: monospace;
+      font-size: 12px;
+    }
+    .notice {
+      background: #fff8e0;
+      border-left: 3px solid #e0a000;
+      padding: 10px 14px;
+      margin: 12px 0;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="cover">
+  <div class="cover-tag">Local Document — Do Not Publish</div>
+  <h1>よろず支援拠点 はじめてご利用の方へ<br>スライドシステム 運用マニュアル</h1>
+  <div class="cover-sub">有限会社アートソウル 上村桂右 — 管理者専用</div>
+  <div class="cover-warning">
+    ⚠ このファイルは GitHub にアップロードしないでください。<br>
+    .gitignore に登録済みですが、念のため本ファイルの取り扱いに注意してください。
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- ========== 初期パスワード ========== -->
+  <h2>初期パスワード</h2>
+
+  <div class="pwd-box">
+    <div class="pwd-box-label">Presenter Default Password</div>
+    <div class="pwd-value">artsoul2026</div>
+    <div class="pwd-note">初回セットアップ時に admin.html で設定するパスワード。変更後はここに書き直してください。</div>
+    <div class="pwd-change-note">
+      <strong>セキュリティ推奨：</strong> 公開後すぐに admin.html でパスワードを変更してください。<br>
+      変更後のパスワード: ________________________________
+    </div>
+  </div>
+
+  <!-- ========== システム構成 ========== -->
+  <h2>システム構成（各ファイルの役割）</h2>
+
+  <table class="url-table">
+    <tr>
+      <th>ファイル</th>
+      <th>用途</th>
+      <th>公開</th>
+    </tr>
+    <tr>
+      <td><code>viewer.html</code></td>
+      <td>受講者向けスライド閲覧。エクスポートボタンなし。<br><strong>← これを受講者に共有する</strong></td>
+      <td><span class="tag tag-public">公開OK</span></td>
+    </tr>
+    <tr>
+      <td><code>presenter.html</code></td>
+      <td>プレゼンター用。タイマー・トークスクリプト・目次・PDF/PPTX出力。パスワード保護済み。</td>
+      <td><span class="tag tag-private">要PW</span></td>
+    </tr>
+    <tr>
+      <td><code>index.html</code></td>
+      <td>フル操作画面。スライド編集・ズーム・全機能。管理者用。</td>
+      <td><span class="tag tag-private">管理者のみ</span></td>
+    </tr>
+    <tr>
+      <td><code>admin.html</code></td>
+      <td>共有URLコピー・パスワード変更。管理者のみ使用。</td>
+      <td><span class="tag tag-private">管理者のみ</span></td>
+    </tr>
+    <tr>
+      <td><code>manual.html</code></td>
+      <td>このファイル。初期パスワード・運用手順を記載。</td>
+      <td><span class="tag tag-local">非公開（ローカル専用）</span></td>
+    </tr>
+  </table>
+
+  <!-- ========== 初期セットアップ ========== -->
+  <h2>初回セットアップ手順</h2>
+
+  <ul class="step-list">
+    <li>
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <div class="step-title">GitHub Pages を有効にする</div>
+        <div class="step-desc">リポジトリの Settings → Pages → Source: Deploy from a branch → main / (root) に設定。数分後 URL が発行される。</div>
+      </div>
+    </li>
+    <li>
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <div class="step-title">manual.html を .gitignore に確認する</div>
+        <div class="step-desc"><code>.gitignore</code> に <code>06_セミナー事業部/outputs/よろず支援拠点 はじめてご利用の方へ/07_HTML版_v2/manual.html</code> が記載されていること。このファイルは絶対に push しない。</div>
+      </div>
+    </li>
+    <li>
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <div class="step-title">admin.html でパスワードを設定する</div>
+        <div class="step-desc">GitHub Pages の admin.html を開き、上の「初期パスワード」を入力して「設定・変更」をクリック。その後、好みのパスワードに変更することを推奨。</div>
+      </div>
+    </li>
+    <li>
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <div class="step-title">presenter.html の動作確認</div>
+        <div class="step-desc">パスワードを入力してログインできることを確認する。</div>
+      </div>
+    </li>
+    <li>
+      <div class="step-num">5</div>
+      <div class="step-body">
+        <div class="step-title">viewer.html の URL を控える</div>
+        <div class="step-desc">admin.html に表示される「受講者向け共有URL」をコピーしておく。</div>
+      </div>
+    </li>
+  </ul>
+
+  <!-- ========== セミナー当日の手順 ========== -->
+  <h2>セミナー当日の手順</h2>
+
+  <ul class="step-list">
+    <li>
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <div class="step-title">受講者に viewer.html の URL を共有する</div>
+        <div class="step-desc">チャット・メール・QRコードなど。受講者はスライドを閲覧できるが、エクスポートやプレゼンター機能は使えない。</div>
+      </div>
+    </li>
+    <li>
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <div class="step-title">presenter.html を自分のデバイスで開く</div>
+        <div class="step-desc">パスワードを入力してログイン。タイマー・トークスクリプト・目次が使える。スライドは BroadcastChannel で viewer.html と同期する（同じデバイスで両方開いている場合）。</div>
+      </div>
+    </li>
+    <li>
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <div class="step-title">プロジェクターには viewer.html を表示する</div>
+        <div class="step-desc">別ウィンドウで viewer.html を開き、プロジェクター側のディスプレイに移動。presenter.html の「全画面」ボタンで viewer.html を全画面にできる。</div>
+      </div>
+    </li>
+  </ul>
+
+  <!-- ========== セキュリティについて ========== -->
+  <h2>セキュリティについて</h2>
+
+  <div class="security-box">
+    <h3>パスワードの保存場所</h3>
+    <p>admin.html で設定したパスワードは、<strong>このブラウザのローカルストレージ</strong>にのみ保存されます。GitHubのサーバーやリポジトリには一切保存されず、他のユーザーには見えません。</p>
+    <p>presenter.html と admin.html は<strong>同じデバイス・同じブラウザ</strong>で使う必要があります。</p>
+  </div>
+
+  <div class="security-box">
+    <h3>このシステムのセキュリティレベル</h3>
+    <ul>
+      <li>「URLを知らないと入れない」レベルのアクセス制限</li>
+      <li>パスワードのソースコードへの埋め込みなし（修正済み）</li>
+      <li>技術的な知識があればJavaScriptを迂回できる — ただしセミナー資料の共有には十分</li>
+      <li>本格的な認証が必要な場合はサーバーサイドの仕組みが必要</li>
+    </ul>
+  </div>
+
+  <div class="notice">
+    <strong>重要：</strong> presenter.html のパスワードを変更した場合、新しいデバイスで発表する際は
+    そのデバイスの admin.html で再設定が必要です。ローカルストレージはデバイス・ブラウザごとに独立しています。
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>プレゼンターモード — よろず支援拠点 はじめてご利用の方へ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/presenter.css">
+  <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+</head>
+<body class="presenter-mode">
+
+  <!-- ========== Password gate ========== -->
+  <div id="pwd-gate" style="
+    display:none; position:fixed; inset:0; background:#0a0a0a;
+    z-index:9999; align-items:center; justify-content:center;
+    flex-direction:column; gap:20px; font-family:'Noto Sans JP',sans-serif;">
+    <div style="color:#6F911D;font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase">
+      Presenter Access
+    </div>
+    <div style="font-size:18px;font-weight:700;color:rgba(255,255,255,.85)">
+      よろず支援拠点 はじめてご利用の方へ
+    </div>
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <input id="pwd-input" type="password" placeholder="パスワード" autocomplete="current-password"
+        style="background:#161616;border:1px solid #2a2a2a;border-radius:6px;
+               padding:10px 16px;font-size:14px;color:#fff;font-family:'Noto Sans JP',sans-serif;
+               outline:none;width:220px;" />
+      <button id="pwd-submit"
+        style="background:#6F911D;color:#fff;border:none;border-radius:6px;
+               padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;
+               font-family:'Noto Sans JP',sans-serif;">入室</button>
+    </div>
+    <div id="pwd-error" style="font-size:12px;color:#e05555;font-weight:700;min-height:1.4em"></div>
+  </div>
+
+  <script>
+    (function () {
+      var PWD_KEY     = 'presenterPwd';
+      var SESSION_KEY = 'presenterAuthed';
+
+      if (sessionStorage.getItem(SESSION_KEY) === '1') return;
+
+      var gate   = document.getElementById('pwd-gate');
+      var input  = document.getElementById('pwd-input');
+      var submit = document.getElementById('pwd-submit');
+      var errEl  = document.getElementById('pwd-error');
+
+      gate.style.display = 'flex';
+
+      var correct = localStorage.getItem(PWD_KEY);
+      if (!correct) {
+        input.disabled = true;
+        submit.disabled = true;
+        errEl.style.color = '#e0a020';
+        errEl.textContent = 'パスワード未設定です。先に admin.html で設定してください。';
+        setTimeout(function () { input.focus(); }, 50);
+        return;
+      }
+
+      function tryAuth() {
+        var entered = input.value;
+        if (entered === correct) {
+          sessionStorage.setItem(SESSION_KEY, '1');
+          gate.style.display = 'none';
+        } else {
+          errEl.textContent = 'パスワードが違います';
+          input.value = '';
+          input.focus();
+        }
+      }
+
+      submit.addEventListener('click', tryAuth);
+      input.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') tryAuth();
+        errEl.textContent = '';
+      });
+      setTimeout(function () { input.focus(); }, 50);
+    })();
+  </script>
+
+  <!-- ========== Operator toolbar ========== -->
+  <div class="p-toolbar" id="p-toolbar">
+    <button class="p-tool-btn p-menu-btn" id="p-sidebar-toggle" title="目次">☰ 目次</button>
+    <div class="p-tool-sep"></div>
+    <button class="p-tool-btn" id="p-export-pdf">PDF出力</button>
+    <button class="p-tool-btn" id="p-export-pptx">PPTX出力</button>
+    <div class="p-tool-sep"></div>
+    <button class="p-tool-btn p-zoom-btn" id="p-zoom-out" title="縮小">－</button>
+    <span class="p-zoom-display" id="p-zoom-display">100%</span>
+    <button class="p-tool-btn p-zoom-btn" id="p-zoom-in" title="拡大">＋</button>
+    <button class="p-tool-btn p-zoom-reset-btn" id="p-zoom-reset" title="ズームリセット">リセット</button>
+    <div class="p-tool-sep"></div>
+    <button class="p-tool-btn p-fullscreen-btn" id="p-fullscreen-btn" title="全画面 (F キー)">⛶ 全画面</button>
+  </div>
+
+  <!-- ========== Sidebar (slide list) ========== -->
+  <div class="p-sidebar-backdrop" id="p-sidebar-backdrop"></div>
+  <aside class="p-sidebar" id="p-sidebar">
+    <div class="p-sidebar-title">目次</div>
+    <div class="p-sidebar-list" id="p-sidebar-list"></div>
+  </aside>
+
+  <!-- ========== Main layout ========== -->
+  <div class="p-layout" id="p-layout">
+
+    <!-- Left: current slide (horizontally resizable) -->
+    <div class="p-current-col" id="p-current-col">
+      <div class="p-col-label">現在のスライド</div>
+      <div class="p-stage p-stage-current" id="p-stage-current"></div>
+      <!-- Page number badge (bottom-right of slide area) -->
+      <div class="p-page-badge" id="p-page-badge">
+        <span id="p-page-cur">1</span><span class="p-page-sep">/</span><span id="p-page-tot">1</span>
+      </div>
+    </div>
+
+    <!-- Horizontal drag handle (left ↔ right) -->
+    <div class="p-splitter" id="p-splitter">
+      <div class="p-splitter-handle"></div>
+    </div>
+
+    <!-- Right column (vertically divided by v-splitter) -->
+    <div class="p-side-col" id="p-side-col">
+      <div class="p-col-label">次のスライド</div>
+      <div class="p-stage p-stage-next" id="p-stage-next">
+        <div class="p-stage-empty">（最後のスライド）</div>
+      </div>
+
+      <!-- Vertical drag handle (next slide ↕ notes) -->
+      <div class="p-v-splitter" id="p-v-splitter">
+        <div class="p-v-splitter-handle"></div>
+      </div>
+
+      <div class="p-notes-box" id="p-notes-box">
+        <div class="p-notes-header">
+          <span class="p-notes-label">Talk Script</span>
+          <div class="p-notes-header-right">
+            <span class="p-save-indicator" id="p-save-indicator"></span>
+            <div class="p-fontsize-ctrl">
+              <button class="p-fontsize-btn" id="p-notes-smaller" title="文字を小さく">A−</button>
+              <span class="p-fontsize-val" id="p-fontsize-val">13</span>
+              <button class="p-fontsize-btn" id="p-notes-larger" title="文字を大きく">A＋</button>
+            </div>
+            <button class="p-save-btn" id="p-save-btn" title="保存 (Ctrl+S)">保存</button>
+          </div>
+        </div>
+        <textarea class="p-notes-text" id="p-notes-text" placeholder="トークスクリプトを入力…"></textarea>
+      </div>
+
+      <div class="p-info-row">
+        <div class="p-timer" id="p-timer">00:00</div>
+        <div class="p-timer-btns">
+          <button class="p-btn" id="p-timer-toggle">▶ スタート</button>
+          <button class="p-btn p-btn-ghost" id="p-timer-reset">リセット</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== Bottom nav bar ========== -->
+  <div class="p-nav-bar">
+    <button class="p-nav-btn" id="p-prev" title="前へ (←)">
+      <span class="p-nav-arrow">&#9664;</span>
+      <span class="p-nav-label">前へ</span>
+    </button>
+
+    <div class="p-slide-counter">
+      <span id="p-current-num">1</span>
+      <span class="p-counter-sep">/</span>
+      <span id="p-total-num">1</span>
+    </div>
+
+    <button class="p-nav-btn p-nav-btn-next" id="p-next" title="次へ (→)">
+      <span class="p-nav-label">次へ</span>
+      <span class="p-nav-arrow">&#9654;</span>
+    </button>
+
+    <div class="p-nav-hints">← → キーでも操作できます</div>
+  </div>
+
+  <!-- ========== Export overlay ========== -->
+  <div class="p-export-overlay" id="p-export-overlay">
+    <div class="p-export-overlay-inner">
+      <div class="p-export-overlay-label">エクスポート中…</div>
+      <div class="p-export-progress-bar"><div class="p-export-progress-fill" id="p-export-fill"></div></div>
+    </div>
+  </div>
+
+  <script src="js/slides.js"></script>
+  <script src="js/presenter.js"></script>
+</body>
+</html>
