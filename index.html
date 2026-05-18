@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/editor.css">
   <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
@@ -57,6 +58,249 @@
       <div class="export-progress-bar"><div class="export-progress-fill"></div></div>
     </div>
   </div>
+
+  <!-- ===== DESIGN PANEL ===== -->
+  <div class="design-panel" id="design-panel">
+
+    <!-- Icon tab strip -->
+    <div class="dp-tabs">
+      <button class="dp-tab" data-tab="elements" title="図形を追加">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+          <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/><circle cx="17.5" cy="17.5" r="3.5"/>
+        </svg>
+        <span>図形</span>
+      </button>
+      <button class="dp-tab" data-tab="text" title="テキストを追加">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+          <polyline points="4,7 4,4 20,4 20,7"/><line x1="9" y1="20" x2="15" y2="20"/>
+          <line x1="12" y1="4" x2="12" y2="20"/>
+        </svg>
+        <span>テキスト</span>
+      </button>
+      <button class="dp-tab" data-tab="image" title="画像を挿入">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+          <rect x="3" y="3" width="18" height="18" rx="2"/>
+          <circle cx="8.5" cy="8.5" r="1.5"/>
+          <polyline points="21,15 16,10 5,21"/>
+        </svg>
+        <span>画像</span>
+      </button>
+      <button class="dp-tab" data-tab="bg" title="背景を変更">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+          <circle cx="12" cy="12" r="9"/>
+          <path d="M12 3 Q18 12 12 21 Q6 12 12 3Z" fill="currentColor" stroke="none"/>
+        </svg>
+        <span>背景</span>
+      </button>
+      <div class="dp-tab-sep"></div>
+      <button class="dp-tab" data-tab="props" title="プロパティ" id="dp-tab-props" style="display:none">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+          <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+          <circle cx="7" cy="6" r="2" fill="currentColor" stroke="none"/>
+          <circle cx="14" cy="12" r="2" fill="currentColor" stroke="none"/>
+          <circle cx="9" cy="18" r="2" fill="currentColor" stroke="none"/>
+        </svg>
+        <span>配置</span>
+      </button>
+    </div>
+
+    <!-- Content body -->
+    <div class="dp-body" id="dp-body">
+
+      <!-- ── 図形パネル ── -->
+      <div class="dp-panel" id="dp-elements">
+        <div class="dp-panel-title">図形を追加</div>
+        <div class="dp-shapes-grid">
+          <button class="dp-shape-btn" data-shape="rect" title="四角形">
+            <svg width="30" height="24" viewBox="0 0 30 24"><rect x="2" y="2" width="26" height="20" rx="0" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+            <span>四角形</span>
+          </button>
+          <button class="dp-shape-btn" data-shape="roundrect" title="角丸四角形">
+            <svg width="30" height="24" viewBox="0 0 30 24"><rect x="2" y="2" width="26" height="20" rx="6" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+            <span>角丸</span>
+          </button>
+          <button class="dp-shape-btn" data-shape="circle" title="円">
+            <svg width="30" height="24" viewBox="0 0 30 24"><ellipse cx="15" cy="12" rx="12" ry="10" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+            <span>円</span>
+          </button>
+          <button class="dp-shape-btn" data-shape="triangle" title="三角形">
+            <svg width="30" height="24" viewBox="0 0 30 24"><polygon points="15,2 28,22 2,22" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+            <span>三角形</span>
+          </button>
+          <button class="dp-shape-btn" data-shape="line" title="直線">
+            <svg width="30" height="24" viewBox="0 0 30 24"><line x1="2" y1="12" x2="28" y2="12" stroke="currentColor" stroke-width="2.5"/></svg>
+            <span>直線</span>
+          </button>
+          <button class="dp-shape-btn" data-shape="arrow" title="矢印">
+            <svg width="30" height="24" viewBox="0 0 30 24"><line x1="2" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="2.5"/><polyline points="16,6 24,12 16,18" fill="none" stroke="currentColor" stroke-width="2.5"/></svg>
+            <span>矢印</span>
+          </button>
+          <button class="dp-shape-btn" data-shape="star" title="星形">
+            <svg width="30" height="24" viewBox="0 0 30 24"><polygon points="15,1 18,9 27,9 20,14 22,22 15,17 8,22 10,14 3,9 12,9" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+            <span>星形</span>
+          </button>
+          <button class="dp-shape-btn" data-shape="speech" title="吹き出し">
+            <svg width="30" height="24" viewBox="0 0 30 24"><path d="M3,2 H27 Q28,2 28,3 V15 Q28,16 27,16 H17 L14,22 L13,16 H3 Q2,16 2,15 V3 Q2,2 3,2 Z" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+            <span>吹き出し</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ── テキストパネル ── -->
+      <div class="dp-panel" id="dp-text" style="display:none">
+        <div class="dp-panel-title">テキストを追加</div>
+        <button class="dp-text-preset" data-fs="56" data-fw="700">大見出しを追加</button>
+        <button class="dp-text-preset" data-fs="36" data-fw="700">中見出しを追加</button>
+        <button class="dp-text-preset" data-fs="22" data-fw="400">本文を追加</button>
+        <button class="dp-text-preset" data-fs="14" data-fw="400">小文字を追加</button>
+      </div>
+
+      <!-- ── 画像パネル ── -->
+      <div class="dp-panel" id="dp-image" style="display:none">
+        <div class="dp-panel-title">画像を挿入</div>
+        <label class="dp-upload-area" for="dp-img-input">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <polyline points="21,15 16,10 5,21"/>
+          </svg>
+          <span>クリックして選択</span>
+          <span style="font-size:10px;opacity:.5">PNG / JPG / GIF / WebP</span>
+        </label>
+        <input type="file" id="dp-img-input" accept="image/*" style="display:none">
+      </div>
+
+      <!-- ── 背景パネル ── -->
+      <div class="dp-panel" id="dp-bg" style="display:none">
+        <div class="dp-panel-title">スライド背景</div>
+        <div class="dp-panel-sub">プリセット</div>
+        <div class="dp-swatches">
+          <button class="dp-swatch" style="background:#ffffff" data-bg="#ffffff" title="白"></button>
+          <button class="dp-swatch" style="background:#f8f9fa" data-bg="#f8f9fa" title="ライトグレー"></button>
+          <button class="dp-swatch" style="background:#333333" data-bg="#333333" title="ダーク"></button>
+          <button class="dp-swatch" style="background:#1a1a2e" data-bg="#1a1a2e" title="ネイビー"></button>
+          <button class="dp-swatch" style="background:#6F911D" data-bg="#6F911D" title="グリーン"></button>
+          <button class="dp-swatch" style="background:#E8F1D8" data-bg="#E8F1D8" title="ペールグリーン"></button>
+          <button class="dp-swatch" style="background:#38B6FF" data-bg="#38B6FF" title="ブルー"></button>
+          <button class="dp-swatch" style="background:#FABE00" data-bg="#FABE00" title="イエロー"></button>
+          <button class="dp-swatch" style="background:#e74c3c" data-bg="#e74c3c" title="レッド"></button>
+          <button class="dp-swatch" style="background:#8e44ad" data-bg="#8e44ad" title="パープル"></button>
+          <button class="dp-swatch" style="background:#2c3e50" data-bg="#2c3e50" title="ダークブルー"></button>
+          <button class="dp-swatch" style="background:#000000" data-bg="#000000" title="ブラック"></button>
+        </div>
+        <div class="dp-panel-sub" style="margin-top:14px">カスタムカラー</div>
+        <label class="dp-color-row" style="margin-bottom:10px">
+          <input type="color" id="dp-bg-color" value="#ffffff">
+          <span>背景色を選択</span>
+        </label>
+        <button class="dp-btn-sec" id="dp-bg-reset">背景をリセット</button>
+      </div>
+
+      <!-- ── プロパティパネル ── -->
+      <div class="dp-panel" id="dp-props" style="display:none">
+        <div class="dp-panel-title">プロパティ</div>
+
+        <!-- Text props (shown for dp-el-text) -->
+        <div id="dp-tp" style="display:none">
+          <div class="dp-prop-group">
+            <div class="dp-prop-label">フォントサイズ</div>
+            <div class="dp-prop-row">
+              <button class="dp-step" id="dp-fs-dec">－</button>
+              <input type="number" class="dp-num" id="dp-fs" min="6" max="400" value="24">
+              <button class="dp-step" id="dp-fs-inc">＋</button>
+              <span class="dp-unit">px</span>
+            </div>
+          </div>
+          <div class="dp-prop-group">
+            <div class="dp-prop-label">スタイル</div>
+            <div class="dp-fmt-row">
+              <button class="dp-fmt-btn" id="dp-bold" title="太字"><b>B</b></button>
+              <button class="dp-fmt-btn" style="font-style:italic" id="dp-italic" title="斜体">I</button>
+              <button class="dp-fmt-btn" style="text-decoration:underline" id="dp-underline" title="下線">U</button>
+            </div>
+          </div>
+          <div class="dp-prop-group">
+            <div class="dp-prop-label">揃え</div>
+            <div class="dp-fmt-row">
+              <button class="dp-fmt-btn" id="dp-al-l" title="左揃え">
+                <svg width="14" height="12" viewBox="0 0 14 12"><line x1="0" y1="1" x2="14" y2="1" stroke="currentColor" stroke-width="1.7"/><line x1="0" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.7"/><line x1="0" y1="9" x2="14" y2="9" stroke="currentColor" stroke-width="1.7"/></svg>
+              </button>
+              <button class="dp-fmt-btn" id="dp-al-c" title="中央揃え">
+                <svg width="14" height="12" viewBox="0 0 14 12"><line x1="0" y1="1" x2="14" y2="1" stroke="currentColor" stroke-width="1.7"/><line x1="2.5" y1="5" x2="11.5" y2="5" stroke="currentColor" stroke-width="1.7"/><line x1="0" y1="9" x2="14" y2="9" stroke="currentColor" stroke-width="1.7"/></svg>
+              </button>
+              <button class="dp-fmt-btn" id="dp-al-r" title="右揃え">
+                <svg width="14" height="12" viewBox="0 0 14 12"><line x1="0" y1="1" x2="14" y2="1" stroke="currentColor" stroke-width="1.7"/><line x1="5" y1="5" x2="14" y2="5" stroke="currentColor" stroke-width="1.7"/><line x1="0" y1="9" x2="14" y2="9" stroke="currentColor" stroke-width="1.7"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="dp-prop-group">
+            <div class="dp-prop-label">文字色</div>
+            <label class="dp-color-row">
+              <input type="color" id="dp-txt-color" value="#333333">
+              <span>色を選択</span>
+            </label>
+          </div>
+          <hr class="dp-sep">
+        </div>
+
+        <!-- Shape props (shown for dp-el-shape) -->
+        <div id="dp-sp" style="display:none">
+          <div class="dp-prop-group">
+            <div class="dp-prop-label">塗りつぶし</div>
+            <label class="dp-color-row">
+              <input type="color" id="dp-fill" value="#6F911D">
+              <span>色を選択</span>
+            </label>
+          </div>
+          <div class="dp-prop-group">
+            <div class="dp-prop-label">枠線の色 / 太さ</div>
+            <div class="dp-prop-row">
+              <label class="dp-color-row" style="flex:1;padding:5px 8px">
+                <input type="color" id="dp-stroke" value="#333333">
+                <span style="font-size:11px">色</span>
+              </label>
+              <input type="number" class="dp-num" id="dp-sw" min="0" max="30" value="0" style="width:46px">
+              <span class="dp-unit">px</span>
+            </div>
+          </div>
+          <div class="dp-prop-group" id="dp-rg">
+            <div class="dp-prop-label">角丸 <span id="dp-rv">0%</span></div>
+            <input type="range" class="dp-slider" id="dp-radius" min="0" max="50" value="0">
+          </div>
+          <hr class="dp-sep">
+        </div>
+
+        <!-- Common props -->
+        <div id="dp-cp">
+          <div class="dp-prop-group">
+            <div class="dp-prop-label">位置 / サイズ</div>
+            <div class="dp-pos-grid">
+              <label>X (px)<input type="number" id="dp-px" step="1" value="0"></label>
+              <label>Y (px)<input type="number" id="dp-py" step="1" value="0"></label>
+              <label>幅 (px)<input type="number" id="dp-pw" step="1" min="10" value="100"></label>
+              <label>高さ (px)<input type="number" id="dp-ph" step="1" min="10" value="80"></label>
+            </div>
+          </div>
+          <div class="dp-prop-group">
+            <div class="dp-prop-label">不透明度 <span id="dp-ov">100%</span></div>
+            <input type="range" class="dp-slider" id="dp-op" min="0.05" max="1" step="0.05" value="1">
+          </div>
+          <div class="dp-prop-group">
+            <div class="dp-prop-label">重なり順</div>
+            <div class="dp-fmt-row">
+              <button class="dp-fmt-btn" id="dp-zff" title="最前面">↑↑</button>
+              <button class="dp-fmt-btn" id="dp-zf"  title="前面">↑</button>
+              <button class="dp-fmt-btn" id="dp-zb"  title="背面">↓</button>
+              <button class="dp-fmt-btn" id="dp-zbb" title="最背面">↓↓</button>
+            </div>
+          </div>
+          <button class="dp-btn-del" id="dp-del">この要素を削除</button>
+        </div>
+      </div>
+
+    </div><!-- /.dp-body -->
+  </div><!-- /.design-panel -->
 
   <script src="js/slides.js"></script>
   <script src="js/app.js"></script>

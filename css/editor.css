@@ -1,0 +1,504 @@
+/* =============================================
+   DESIGN PANEL (Canva-like editor)
+   index.html only — never loaded by viewer/presenter
+   ============================================= */
+
+/* ── Panel shell ── */
+.design-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  display: flex;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .18s;
+}
+
+body.edit-mode .design-panel {
+  pointer-events: auto;
+  opacity: 1;
+}
+
+/* ── Tab strip (icon column, always 64 px) ── */
+.dp-tabs {
+  width: 64px;
+  height: 100%;
+  background: #18181f;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 0 16px;
+  gap: 2px;
+  flex-shrink: 0;
+  border-right: 1px solid rgba(255,255,255,.07);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.dp-tab {
+  width: 52px;
+  min-height: 58px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: rgba(255,255,255,.42);
+  font-size: 9.5px;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 500;
+  letter-spacing: .03em;
+  transition: background .13s, color .13s;
+  padding: 6px 2px;
+  flex-shrink: 0;
+}
+
+.dp-tab:hover {
+  background: rgba(255,255,255,.07);
+  color: rgba(255,255,255,.8);
+}
+
+.dp-tab.active {
+  background: rgba(255,255,255,.12);
+  color: #fff;
+}
+
+.dp-tab svg { display: block; flex-shrink: 0; }
+
+.dp-tab-sep { flex: 1; }
+
+/* ── Content body (slides out) ── */
+.dp-body {
+  width: 0;
+  height: 100%;
+  background: #22222c;
+  overflow: hidden;
+  transition: width .2s cubic-bezier(.4,0,.2,1);
+  border-right: 1px solid rgba(255,255,255,.07);
+  flex-shrink: 0;
+}
+
+.design-panel.body-open .dp-body {
+  width: 260px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* ── Stage shift when panel open ── */
+body.dp-open .slide-stage {
+  left: 324px;
+  transition: left .2s cubic-bezier(.4,0,.2,1);
+}
+
+/* ── Panel content ── */
+.dp-panel {
+  padding: 16px 14px 20px;
+  color: #dde0e8;
+  min-width: 260px;
+}
+
+.dp-panel-title {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: rgba(255,255,255,.35);
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  margin-bottom: 14px;
+}
+
+.dp-panel-sub {
+  font-size: 10.5px;
+  color: rgba(255,255,255,.3);
+  margin-bottom: 7px;
+  margin-top: 14px;
+}
+
+/* ── Shapes grid ── */
+.dp-shapes-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.dp-shape-btn {
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: 7px;
+  color: rgba(255,255,255,.65);
+  cursor: pointer;
+  padding: 7px 4px 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 9px;
+  font-family: 'Noto Sans JP', sans-serif;
+  transition: background .12s, color .12s;
+}
+
+.dp-shape-btn:hover {
+  background: rgba(255,255,255,.13);
+  color: #fff;
+}
+
+/* ── Text preset buttons ── */
+.dp-text-preset {
+  display: block;
+  width: 100%;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: 7px;
+  color: rgba(255,255,255,.8);
+  cursor: pointer;
+  padding: 11px 13px;
+  text-align: left;
+  margin-bottom: 7px;
+  font-family: 'Noto Sans JP', sans-serif;
+  transition: background .12s;
+  line-height: 1.3;
+}
+
+.dp-text-preset:hover {
+  background: rgba(255,255,255,.13);
+  color: #fff;
+}
+
+.dp-text-preset[data-fs="56"] { font-size: 16px; font-weight: 700; }
+.dp-text-preset[data-fs="36"] { font-size: 13px; font-weight: 700; }
+.dp-text-preset[data-fs="22"] { font-size: 11.5px; font-weight: 400; }
+.dp-text-preset[data-fs="14"] { font-size: 10px; font-weight: 400; color: rgba(255,255,255,.55); }
+
+/* ── Image upload ── */
+.dp-upload-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  border: 2px dashed rgba(255,255,255,.18);
+  border-radius: 10px;
+  padding: 28px 16px;
+  cursor: pointer;
+  color: rgba(255,255,255,.45);
+  font-size: 12px;
+  font-family: 'Noto Sans JP', sans-serif;
+  text-align: center;
+  transition: border-color .15s, color .15s;
+}
+
+.dp-upload-area:hover {
+  border-color: rgba(255,255,255,.45);
+  color: rgba(255,255,255,.9);
+}
+
+/* ── Background swatches ── */
+.dp-swatches {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 7px;
+  margin-bottom: 4px;
+}
+
+.dp-swatch {
+  aspect-ratio: 1;
+  border: 2px solid rgba(255,255,255,.12);
+  border-radius: 5px;
+  cursor: pointer;
+  transition: transform .1s, border-color .1s;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.2);
+}
+
+.dp-swatch:hover {
+  transform: scale(1.12);
+  border-color: rgba(255,255,255,.55);
+}
+
+/* ── Color picker row ── */
+.dp-color-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 7px;
+  padding: 7px 10px;
+  cursor: pointer;
+  color: rgba(255,255,255,.75);
+  font-size: 12px;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+.dp-color-row input[type="color"] {
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 4px;
+  padding: 0;
+  cursor: pointer;
+  background: none;
+}
+
+/* ── Property groups ── */
+.dp-prop-group {
+  margin-bottom: 15px;
+}
+
+.dp-prop-label {
+  font-size: 10.5px;
+  color: rgba(255,255,255,.38);
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.dp-prop-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.dp-num {
+  width: 56px;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.13);
+  border-radius: 5px;
+  color: #fff;
+  font-size: 12px;
+  padding: 5px 6px;
+  text-align: center;
+  -moz-appearance: textfield;
+  font-family: monospace;
+}
+
+.dp-num::-webkit-outer-spin-button,
+.dp-num::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+.dp-num:focus { outline: 1px solid rgba(56,182,255,.6); }
+
+.dp-step {
+  width: 26px;
+  height: 26px;
+  background: rgba(255,255,255,.07);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 5px;
+  color: rgba(255,255,255,.8);
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: monospace;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.dp-step:hover { background: rgba(255,255,255,.16); }
+
+.dp-unit {
+  font-size: 10px;
+  color: rgba(255,255,255,.35);
+}
+
+/* Slider */
+.dp-slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255,255,255,.15);
+  outline: none;
+  cursor: pointer;
+}
+
+.dp-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #38B6FF;
+  cursor: pointer;
+}
+
+.dp-slider-val {
+  font-size: 11px;
+  color: rgba(255,255,255,.5);
+  min-width: 34px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* ── Format buttons row ── */
+.dp-fmt-row {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.dp-fmt-btn {
+  min-width: 30px;
+  height: 28px;
+  background: rgba(255,255,255,.07);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 5px;
+  color: rgba(255,255,255,.7);
+  font-size: 11.5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Noto Sans JP', sans-serif;
+  transition: background .12s;
+  padding: 0 8px;
+}
+
+.dp-fmt-btn:hover { background: rgba(255,255,255,.15); color: #fff; }
+.dp-fmt-btn.active { background: rgba(56,182,255,.25); border-color: rgba(56,182,255,.5); color: #38B6FF; }
+
+/* ── Position/size 2-col grid ── */
+.dp-pos-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.dp-pos-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 10px;
+  color: rgba(255,255,255,.38);
+}
+
+.dp-pos-grid input {
+  width: 100%;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 5px;
+  color: #fff;
+  font-size: 12px;
+  padding: 5px 6px;
+  -moz-appearance: textfield;
+  font-family: monospace;
+}
+
+.dp-pos-grid input::-webkit-outer-spin-button,
+.dp-pos-grid input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+.dp-pos-grid input:focus { outline: 1px solid rgba(56,182,255,.6); }
+
+/* ── Separator ── */
+.dp-sep {
+  border: none;
+  border-top: 1px solid rgba(255,255,255,.07);
+  margin: 12px 0;
+}
+
+/* ── Danger button ── */
+.dp-btn-del {
+  background: rgba(231,76,60,.12);
+  border: 1px solid rgba(231,76,60,.25);
+  color: #e74c3c;
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 12px;
+  width: 100%;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 500;
+  transition: background .12s;
+}
+
+.dp-btn-del:hover { background: rgba(231,76,60,.25); }
+
+/* ── Secondary button ── */
+.dp-btn-sec {
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.1);
+  color: rgba(255,255,255,.7);
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 12px;
+  width: 100%;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 500;
+  transition: background .12s;
+  margin-bottom: 7px;
+}
+
+.dp-btn-sec:hover { background: rgba(255,255,255,.13); color: #fff; }
+
+/* =============================================
+   SELECTION BOX + HANDLES
+   ============================================= */
+.dp-sel-box {
+  position: absolute;
+  box-sizing: border-box;
+  border: 2px solid #38B6FF;
+  border-radius: 1px;
+  pointer-events: none;
+  z-index: 8900;
+}
+
+.dp-sel-handle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: #fff;
+  border: 2px solid #38B6FF;
+  border-radius: 2px;
+  box-sizing: border-box;
+  pointer-events: auto !important;
+  z-index: 8901;
+}
+
+.dp-sel-nw { top: -5px;              left: -5px;              cursor: nw-resize; }
+.dp-sel-n  { top: -5px;              left: calc(50% - 5px);   cursor: n-resize;  }
+.dp-sel-ne { top: -5px;              right: -5px;             cursor: ne-resize; }
+.dp-sel-e  { top: calc(50% - 5px);   right: -5px;             cursor: e-resize;  }
+.dp-sel-se { bottom: -5px;           right: -5px;             cursor: se-resize; }
+.dp-sel-s  { bottom: -5px;           left: calc(50% - 5px);   cursor: s-resize;  }
+.dp-sel-sw { bottom: -5px;           left: -5px;              cursor: sw-resize; }
+.dp-sel-w  { top: calc(50% - 5px);   left: -5px;              cursor: w-resize;  }
+
+/* =============================================
+   INSERTED DESIGN ELEMENTS
+   ============================================= */
+.dp-el {
+  position: absolute;
+  cursor: move;
+  user-select: none;
+  z-index: 10;
+  box-sizing: border-box;
+}
+
+.dp-el[contenteditable="true"] { cursor: text; }
+
+.dp-el svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+
+.dp-el-text {
+  padding: 4px 8px;
+  line-height: 1.35;
+  white-space: pre-wrap;
+  word-break: break-word;
+  min-width: 40px;
+  min-height: 20px;
+}
+
+/* Body class for "dp open" — also used to silence other click handlers */
+body.dp-open { }
+
+/* =============================================
+   EDIT MODE — slide cursor reset
+   ============================================= */
+body.edit-mode .slide.active { cursor: default; }
